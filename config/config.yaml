@@ -1,0 +1,26 @@
+# Runtime parameters — loaded by AgentRegistry, passed as Graph(config=...).
+# Separate from config/agent.yaml (the static manifest).
+
+max_retry: 3
+timeout_s: 30
+
+# Reconciliation defaults. A caller may override match_keys / amount_tolerance
+# per request via input_context; anything a caller sends is re-validated against
+# the same bounds, so these are defaults, not a trust boundary.
+reconciliation:
+  # Composite key used to match a record in source A against one in source B.
+  # Allowed members: reference, amount, date.
+  match_keys:
+    - reference
+    - amount
+  # Absolute amount difference tolerated on a matched pair before it counts as
+  # a value mismatch, in the ledger's own currency unit.
+  amount_tolerance: 0.01
+  # Governed system prompt for the classification step. The shipped classifier
+  # is deterministic and does not call a model; a deployment that swaps a model
+  # in at that seam reads its instruction from here rather than from code.
+  system_prompt: >-
+    You are a financial reconciliation analyst. For each discrepancy, classify
+    the most likely root-cause category (timing_cutoff, fx_rounding,
+    duplicate_entry, omission, data_entry_error) and give a one-sentence
+    hypothesis. Do not invent amounts. Do not include account holder identifiers.
